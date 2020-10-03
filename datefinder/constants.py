@@ -35,7 +35,7 @@ UNDELIMITED_STAMPS_PATTERN = "|".join(
 DELIMITERS_PATTERN = r"[/\:\-\,\.\s\_\+\@]+"
 TIME_PERIOD_PATTERN = r"a\.m\.|am|p\.m\.|pm"
 ## can be in date strings but not recognized by dateutils
-EXTRA_TOKENS_PATTERN = r"due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|at|day"
+EXTRA_TOKENS_PATTERN = r"due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|at|day|à"
 
 ## TODO: Get english numbers?
 ## http://www.rexegg.com/regex-trick-numbers-in-english.html
@@ -68,6 +68,14 @@ TIME_PATTERN = r"""
         (?P<time_periods>{time_periods})
         \s*
         (?P<timezones>{timezones})*
+    )
+    |
+    ## Captures in 10h00
+    ## Note with single digit capture requires time period
+    (
+        (?P<hours>\d{{2}})
+        h
+        (?P<minutes>\d{{2}})     
     )
 )
 """.format(
@@ -124,10 +132,25 @@ DATES_PATTERN = DATES_PATTERN.format(
     extra_tokens=EXTRA_TOKENS_PATTERN,
 )
 
-ALL_GROUPS = ['time', 'years', 'numbers', 'digits', 'digits_suffixes', 'days',
-              'months', 'delimiters', 'positionnal_tokens', 'extra_tokens',
-              'undelimited_stamps', 'hours', 'minutes', 'seconds', 'microseconds',
-              'time_periods', 'timezones']
+ALL_GROUPS = [
+    "time",
+    "years",
+    "numbers",
+    "digits",
+    "digits_suffixes",
+    "days",
+    "months",
+    "delimiters",
+    "positionnal_tokens",
+    "extra_tokens",
+    "undelimited_stamps",
+    "hours",
+    "minutes",
+    "seconds",
+    "microseconds",
+    "time_periods",
+    "timezones",
+]
 
 DATE_REGEX = re.compile(
     DATES_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE
@@ -150,6 +173,7 @@ REPLACEMENTS = {
     "on": " ",
     "to": " ",
     "day": " ",
+    "à": " ",
 }
 
 TIMEZONE_REPLACEMENTS = {
@@ -163,7 +187,8 @@ TIMEZONE_REPLACEMENTS = {
 STRIP_CHARS = " \n\t:-.,_"
 
 # split ranges
-RANGE_SPLIT_PATTERN = r'\Wto\W|\Wthrough\W'
+RANGE_SPLIT_PATTERN = r"\Wto\W|\Wthrough\W"
 
-RANGE_SPLIT_REGEX =  re.compile(RANGE_SPLIT_PATTERN,
-    re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL)
+RANGE_SPLIT_REGEX = re.compile(
+    RANGE_SPLIT_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL
+)
